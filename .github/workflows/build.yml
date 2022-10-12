@@ -32,6 +32,12 @@ jobs:
       - name: Pack (no-restore)
         run: dotnet pack --configuration Release --no-restore --output . -p:Version=${{ matrix.dotnet-version }}-no-restore
 
+      - name: Pack (solution, no-build)
+        run: dotnet pack aspnetcore-pack.sln --configuration Release --no-build --output . -p:Version=${{ matrix.dotnet-version }}-solution-no-build
+
+      - name: Pack (solution, no-restore)
+        run: dotnet pack aspnetcore-pack.sln --configuration Release --no-restore --output . -p:Version=${{ matrix.dotnet-version }}-solution-no-restore
+
       - name: Upload packages
         uses: actions/upload-artifact@v3
         with:
