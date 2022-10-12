@@ -1,0 +1,39 @@
+name: Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version:
+        - 6.0
+        - 7.0.100-rc.1.22431.12
+        - 7.0.100-rc.2.22477.23
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+
+      - name: Pack (no-build)
+        run: dotnet pack --configuration Release --no-build --output . -p:Version=${{ matrix.dotnet-version }}-no-build
+
+      - name: Pack (no-restore)
+        run: dotnet pack --configuration Release --no-restore --output . -p:Version=${{ matrix.dotnet-version }}-no-restore
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: '*.nupkg'
